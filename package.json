@@ -1,6 +1,7 @@
 {
   "name": "dsh-exploration-panel",
   "version": "0.1.0",
+  "author": "crepper521",
   "description": "Exploration alignment panel for DeepSeek Harness: see what the agent read, what it declared it will read next, and where it drifted — a perception-only panel with zero model calls.",
   "type": "module",
   "main": "lib/index.js",
