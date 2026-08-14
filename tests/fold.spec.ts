@@ -4,6 +4,7 @@ import {
   applyExplorationEvent,
   createExplorationState,
   foldExploration,
+  pathTargetsMatch,
 } from '../src/fold.ts'
 import type { ExplorationProjection } from '../src/types.ts'
 
@@ -289,5 +290,66 @@ describe('exploration fold: declaration lifecycle over a long session', () => {
     fx.call('exploration', declare([{ target: 'src/a.ts' }, { target: 'src/b.ts' }]))
     fx.user('keep going')
     expect(fold(fx.log).declaration?.items.map(item => item.status)).toEqual(['pending', 'pending'])
+  })
+})
+
+describe('pathTargetsMatch (relative declaration vs absolute read)', () => {
+  it('matches exact paths', () => {
+    expect(pathTargetsMatch('src/a.ts', 'src/a.ts')).toBe(true)
+    expect(pathTargetsMatch('src/a.ts', 'src/b.ts')).toBe(false)
+  })
+
+  it('matches a relative target against an absolute read on a separator boundary', () => {
+    expect(pathTargetsMatch('README.md', 'D:\\code\\proj\\README.md')).toBe(true)
+    expect(pathTargetsMatch('docs/architecture.md', 'D:/code/proj/docs/architecture.md')).toBe(true)
+    // Basename fallback also covers a sibling directory with the same file name.
+    expect(pathTargetsMatch('docs/architecture.md', 'D:/code/proj/docs2/architecture.md')).toBe(true)
+    // The suffix tier rejects a non-boundary tail: `a.ts` inside `xa.ts`.
+    expect(pathTargetsMatch('a.ts', 'D:/code/proj/xa.ts')).toBe(false)
+  })
+
+  it('matches by basename when directories differ', () => {
+    expect(pathTargetsMatch('README.md', 'D:/code/other/README.md')).toBe(true)
+    expect(pathTargetsMatch('docs/AGENTS.md', 'D:/code/other/docs/AGENTS.md')).toBe(true)
+  })
+
+  it('rejects empty inputs', () => {
+    expect(pathTargetsMatch('', 'README.md')).toBe(false)
+    expect(pathTargetsMatch('README.md', '')).toBe(false)
+  })
+})
+
+describe('exploration fold: relative declaration with absolute reads (real-model shape)', () => {
+  it('satisfies the declaration, completes it, and reports zero off-plan', () => {
+    const fx = makeEvents()
+    fx.call('exploration', declare([{ target: 'README.md' }, { target: 'docs/architecture.md' }]))
+    fx.call('read', { file_path: 'D:/code/proj/README.md' })
+    fx.result()
+    fx.call('read', { file_path: 'D:/code/proj/docs/architecture.md' })
+    fx.result()
+    const projection = fold(fx.log)
+    expect(projection.offPlan).toEqual([])
+    expect(projection.declaration).toBeNull()
+    expect(projection.history).toHaveLength(1)
+    expect(projection.history[0]).toMatchObject({ status: 'completed' })
+    expect(projection.history[0]?.items.every(item => item.status === 'done')).toBe(true)
+  })
+
+  it('still flags an undeclared absolute read as off-plan', () => {
+    const fx = makeEvents()
+    fx.call('exploration', declare([{ target: 'README.md' }, { target: 'docs/architecture.md' }]))
+    fx.call('read', { file_path: 'D:/code/proj/src/unrelated.ts' })
+    fx.result()
+    expect(fold(fx.log).offPlan).toEqual([{ path: 'D:/code/proj/src/unrelated.ts', seq: 2 }])
+  })
+
+  it('marks a declaration item done when the target was already read with an absolute path', () => {
+    const fx = makeEvents()
+    fx.call('read', { file_path: 'D:/code/proj/README.md' })
+    fx.result()
+    fx.call('exploration', declare([{ target: 'README.md' }, { target: 'package.json' }]))
+    const projection = fold(fx.log)
+    expect(projection.declaration?.items[0]?.status).toBe('done')
+    expect(projection.declaration?.items[1]?.status).toBe('pending')
   })
 })

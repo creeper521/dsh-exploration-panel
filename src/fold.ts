@@ -220,6 +220,40 @@ function evidenceTarget(name: string, args: Record<string, unknown>): string | n
 }
 
 /**
+ * Whether a read path satisfies a declared target.
+ *
+ * Models declare relative targets (`README.md`, `docs/architecture.md`) while
+ * the read tool records absolute paths (`D:\code\...\README.md`). Exact
+ * comparison would flag every real read as off-plan, so matching is a three-
+ * tier fallback: exact → normalized suffix with a separator boundary →
+ * basename equality.
+ * @param target - the declared target (as the model wrote it).
+ * @param readPath - the actual read path from the tool call.
+ * @returns whether the read satisfies the declaration.
+ */
+export function pathTargetsMatch(target: string, readPath: string): boolean {
+  const t = target.trim()
+  const p = readPath.trim()
+  if (t === '' || p === '') return false
+  if (t === p) return true
+  // Normalized suffix: `docs/architecture.md` matches `D:\code\...\docs\architecture.md`
+  // when it is the path tail on a separator boundary (either slash spelling).
+  if (p.endsWith(t)) {
+    const before = p[p.length - t.length - 1]
+    if (before === undefined || before === '/' || before === '\\') return true
+  }
+  // Basename equality: declaring `README.md` matches any directory's README.md.
+  const tBase = t.split(/[/\\]/).at(-1) ?? t
+  const pBase = p.split(/[/\\]/).at(-1) ?? p
+  return tBase !== '' && tBase === pBase
+}
+
+/** Whether a read path is covered by any item of a declaration. */
+function declaredBy(path: string, items: readonly DeclarationItem[]): boolean {
+  return items.some(item => pathTargetsMatch(item.target, path))
+}
+
+/**
  * Register the running evidence entry for one tool call and return its
  * pairing id; null when the tool is unknown or the args are unparseable.
  */
@@ -318,7 +352,7 @@ export function applyExplorationEvent(state: ExplorationFoldState, event: Sessio
         return {
           target: item.target,
           ...(item.purpose !== undefined ? { purpose: item.purpose } : {}),
-          status: state._readPaths.includes(item.target) ? 'done' as const : 'pending' as const,
+          status: state._readPaths.some(path => pathTargetsMatch(item.target, path)) ? 'done' as const : 'pending' as const,
           readSeqs: prior === undefined ? [] : [prior.lastSeq],
         }
       })
@@ -358,7 +392,9 @@ export function applyExplorationEvent(state: ExplorationFoldState, event: Sessio
     settleEvidence(next, pending, failed ? 'failed' : 'done')
     // Off-plan judgement at completion time, against the THEN-active declaration.
     if (readPath !== undefined && !failed) {
-      const declared = next.declaration !== null && next.declaration.items.some(item => item.target === readPath)
+      const declared = next.declaration !== null && declaredBy(readPath, next.declaration.items)
+      // Re-reads of the SAME exact path are never re-flagged; a same-basename
+      // file in another directory is a different read and stays off-plan.
       if (!declared && !state._readPaths.includes(readPath)) {
         next.offPlan = [...next.offPlan, { path: readPath, seq }]
       }
@@ -366,7 +402,7 @@ export function applyExplorationEvent(state: ExplorationFoldState, event: Sessio
     // Declaration progress: a completed read may satisfy declared targets.
     if (readPath !== undefined && !failed && next.declaration !== null) {
       const items = next.declaration.items.map(item => {
-        if (item.target !== readPath || item.status === 'done') return item
+        if (!pathTargetsMatch(item.target, readPath) || item.status === 'done') return item
         return { ...item, status: 'done' as const, readSeqs: [...item.readSeqs, seq] }
       })
       if (items.every(item => item.status === 'done')) {

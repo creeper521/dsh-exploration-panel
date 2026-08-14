@@ -121,10 +121,10 @@ function NewBadge({ t }: { t: PanelTranslate }): ReactNode {
   return <span className={css.newBadge}>{t('new.badge')}</span>
 }
 
-/** Merge formatted line ranges: `1-200, 340-360`. */
+/** Merge formatted line ranges: `1-200, 340-360`; a range without an end renders as its start. */
 function fmtRanges(ranges: readonly ReadRange[]): string {
   return ranges
-    .map(r => (r.start === r.end ? `${r.start}` : `${r.start}-${r.end}`))
+    .map(r => (r.end === undefined || r.start === r.end ? `${r.start}` : `${r.start}-${r.end}`))
     .join(', ')
 }
 

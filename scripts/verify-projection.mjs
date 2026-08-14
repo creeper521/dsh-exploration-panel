@@ -50,10 +50,12 @@ const candidates = readdirSync(SESSION_ROOT, { withFileTypes: true })
 let found = null
 for (const path of candidates) {
   try {
-    const text = await decompressLog(readFileSync(path))
-    if (text.includes('"name":"exploration"') || text.includes('"name": "exploration"')) {
+    const events = eventsOf(await decompressLog(readFileSync(path)))
+    // Event-level detection: a real tool/call named `exploration` (raw text
+    // matching would false-positive on the tool schema inside the prompt).
+    if (events.some(event => event.type === 'tool/call' && event.data.name === 'exploration')) {
       console.log(`SESSION: ${path}`)
-      found = { path, text }
+      found = { path, events }
       break
     }
   } catch (error) {
@@ -66,7 +68,7 @@ if (found === null) {
   process.exit(1)
 }
 
-const events = eventsOf(found.text)
+const events = found.events
 const projection = foldExploration(events)
 
 console.log('\n=== PANEL PROJECTION (what the Exploration tab renders) ===')
