@@ -1,0 +1,94 @@
+/* Exploration dock (FR-5): QueueDock posture — top-rounded card attached to
+ * the composer, one line, quiet unless reading (blink) or NEW (pulse). */
+
+.dock {
+  border-radius: 12px 12px 0 0;
+  background: var(--dsw-specific-tip);
+  overflow: hidden;
+}
+
+.line {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 36px;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 12px 12px 0 0;
+  background: transparent;
+  font-family: var(--dsw-font-family);
+  font-size: 12.5px;
+  color: var(--dsw-alias-label-secondary);
+  cursor: pointer;
+  transition: background 0.1s var(--ds-ease-in-out);
+}
+
+.line:hover { background: var(--dsw-alias-interactive-bg-hover); }
+
+.line:focus-visible {
+  outline: 2px solid var(--dsw-alias-label-tertiary);
+  outline-offset: -2px;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--dsw-alias-label-caption);
+}
+
+.dotLive {
+  background: var(--dsw-alias-state-warn-primary);
+  animation: expl-dock-blink 1s var(--ds-ease-in-out) infinite;
+}
+
+@keyframes expl-dock-blink { 50% { opacity: 0.35; } }
+
+.seg { display: flex; align-items: baseline; gap: 5px; white-space: nowrap; }
+
+.num {
+  font-family: var(--ds-font-family-code);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--dsw-alias-label-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.numEmph {
+  font-family: var(--ds-font-family-code);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--dsw-alias-state-warn-label);
+  font-variant-numeric: tabular-nums;
+}
+
+.idle { color: var(--dsw-alias-label-caption); }
+
+.newPill {
+  font-family: var(--ds-font-family-code);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--dsw-alias-state-business-primary);
+  background: color-mix(in srgb, var(--dsw-alias-state-business-primary) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--dsw-alias-state-business-primary) 45%, transparent);
+  border-radius: 4px;
+  padding: 1px 6px;
+  animation: expl-dock-pulse 1.6s var(--ds-ease-in-out) infinite;
+}
+
+@keyframes expl-dock-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--dsw-alias-state-business-primary) 35%, transparent); }
+  50% { box-shadow: 0 0 0 3px transparent; }
+}
+
+.open { margin-left: auto; flex: none; font-size: 11px; color: var(--dsw-alias-label-caption); }
+
+.expanded {
+  max-height: min(60vh, 520px);
+  overflow: auto;
+  border-top: 1px solid var(--dsw-alias-border-l1);
+  padding-bottom: 6px;
+}

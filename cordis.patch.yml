@@ -1,0 +1,30 @@
+# dsh-exploration-panel bundle patch: one insert over the profile root.
+#
+# What this layer contributes:
+#
+# - exploration-tool: the model-facing `exploration` declaration tool plus the
+#   static guidance prompt section. Registered at the process (global) scope
+#   layer, so every agent in the profile sees the tool; the guidance section
+#   is suppressed for presets whose persona is `complete: true` (e.g.
+#   `minimal`). Remove this row in your profile cordis.patch.yml to opt out.
+# - exploration-projection: the host-plane projection unit folding evidence
+#   and declarations from the session log (`exploration` projection key).
+# - exploration-invariant: a lightweight consistency companion validating the
+#   fold against the log on every committed event.
+# - ui-exploration: the browser plugin registering the 「探索对齐 /
+#   Exploration」 conversation view tab and the composer dock strip. The
+#   package declares `dsh.client`, so the client loader serves its
+#   lib/client.js bundle; the node half at the package main is an empty
+#   plugin the host Loader accepts.
+- insert:
+    - id: exploration-tool
+      name: 'dsh-exploration-panel/tool'
+
+    - id: exploration-projection
+      name: 'dsh-exploration-panel/projection'
+
+    - id: exploration-invariant
+      name: 'dsh-exploration-panel/invariant'
+
+    - id: ui-exploration
+      name: 'dsh-exploration-panel'

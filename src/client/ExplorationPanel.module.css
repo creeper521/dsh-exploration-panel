@@ -1,0 +1,449 @@
+/* Exploration panel styles (ui-design-light.md). DSW tokens only — the two
+ * "one step deeper" surfaces ride semantic slots because the host light theme
+ * resolves every bg-layer alias to white; dark maps them onto the real layer
+ * aliases (which only distinguish themselves in dark). */
+
+.panel {
+  --dsh-expl-raised: var(--dsw-static-neutral-bluish-50);
+  --dsh-expl-overlay: var(--dsw-static-neutral-bluish-60);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-family: var(--dsw-font-family);
+  font-size: 14px;
+  color: var(--dsw-alias-label-primary);
+}
+
+:global(body[data-ds-dark-theme]) .panel {
+  --dsh-expl-raised: var(--dsw-alias-bg-layer-2);
+  --dsh-expl-overlay: var(--dsw-alias-bg-layer-3);
+}
+
+/* ── Direction anchor (FR-1) ─────────────────────────────────────────── */
+
+.anchor {
+  display: flex;
+  gap: 12px;
+  margin: 12px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: var(--dsw-specific-bubble);
+}
+
+.anchorBar {
+  width: 3px;
+  flex: none;
+  border-radius: 2px;
+  background: var(--dsw-alias-state-business-primary);
+}
+
+.anchorBody { min-width: 0; flex: 1; }
+
+.anchorLabel {
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dsw-alias-label-caption);
+  margin-bottom: 3px;
+}
+
+.anchorGoal { font-size: 14px; font-weight: 600; text-wrap: pretty; }
+
+.anchorGoalEmpty {
+  font-size: 13px;
+  font-style: italic;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.anchorUser {
+  margin-top: 4px;
+  font-size: 12.5px;
+  font-style: italic;
+  color: var(--dsw-alias-label-tertiary);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.anchorWho {
+  font-style: normal;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--dsw-alias-label-caption);
+  margin-right: 6px;
+}
+
+.anchorPlan {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.anchorPlanDot {
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--dsw-alias-state-business-primary);
+}
+
+/* ── NEW increment group (FR-4) ──────────────────────────────────────── */
+
+.newGroup {
+  border: 1px solid color-mix(in srgb, var(--dsw-alias-state-business-primary) 35%, transparent);
+  background: color-mix(in srgb, var(--dsw-alias-state-business-primary) 5%, transparent);
+  border-radius: 11px;
+  padding: 10px 11px 4px;
+  margin-bottom: 14px;
+}
+
+.newGroupHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--dsw-alias-state-business-primary);
+}
+
+/* ── Execution flow sections (FR-2) ──────────────────────────────────── */
+
+.body { padding: 2px 12px 10px; }
+
+.section { margin-bottom: 10px; }
+
+.sectionHead {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  padding: 12px 4px 6px;
+}
+
+.sectionNum {
+  font-family: var(--ds-font-family-code);
+  font-size: 15px;
+  font-weight: 700;
+  min-width: 18px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.sectionZero { color: var(--dsw-alias-label-caption); }
+.section-reading { color: var(--dsw-alias-state-warn-primary); }
+.section-done { color: var(--dsw-alias-state-success-primary); }
+.section-offplan { color: var(--dsw-alias-state-warn-primary); }
+
+.sectionLabel {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--dsw-alias-label-secondary);
+}
+
+.sectionHint { font-size: 11px; color: var(--dsw-alias-label-caption); }
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  font-family: var(--ds-font-family-code);
+  font-size: 12.5px;
+  transition: background 0.1s var(--ds-ease-in-out);
+}
+
+.row:hover { background: var(--dsw-alias-interactive-bg-hover); }
+
+.rowOff { box-shadow: inset 3px 0 0 var(--dsw-alias-state-warn-primary); }
+.rowNew { box-shadow: inset 3px 0 0 var(--dsw-alias-state-business-primary); }
+
+.rowPath {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--dsw-alias-label-primary);
+}
+
+.row[data-status='running'] .rowPath { color: var(--dsw-alias-state-warn-label); }
+.row[data-status='failed'] .rowPath {
+  color: var(--dsw-alias-state-error-primary);
+  text-decoration: line-through;
+}
+.row[data-status='done'] .rowPath { color: var(--dsw-alias-label-secondary); }
+
+.rowMeta {
+  flex: none;
+  font-size: 11px;
+  color: var(--dsw-alias-label-caption);
+}
+
+.rowPurpose {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--dsw-font-family);
+  font-size: 11.5px;
+  font-style: italic;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.rowTail {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+
+.seq {
+  font-size: 10px;
+  color: var(--dsw-alias-label-caption);
+  opacity: 0.75;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Dual-channel status glyphs (color × shape, FR-6): the glyph character is
+ * the second channel — grayscale keeps ◐ ✓ ✕ ! ○ fully distinguishable. */
+
+.glyph {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.glyph-running {
+  color: var(--dsw-alias-state-warn-label);
+  background: var(--dsw-alias-state-warn-tertiary);
+  animation: expl-spin 1.2s linear infinite;
+}
+
+@keyframes expl-spin { to { transform: rotate(360deg); } }
+
+.glyph-done {
+  color: var(--dsw-static-green-900);
+  background: var(--dsw-alias-state-success-tertiary);
+}
+
+:global(body[data-ds-dark-theme]) .glyph-done { color: var(--dsw-alias-state-success-secondary); }
+
+.glyph-failed {
+  color: var(--dsw-alias-state-error-primary);
+  background: var(--dsw-static-red-50);
+}
+
+.glyph-pending {
+  color: var(--dsw-alias-label-tertiary);
+  box-shadow: inset 0 0 0 1.5px var(--dsw-alias-label-tertiary);
+  background: transparent;
+}
+
+/* Off-plan is the one square glyph — shape itself flags the anomaly. */
+.glyph-offplan {
+  color: var(--dsw-alias-state-warn-label);
+  background: var(--dsw-alias-state-warn-tertiary);
+  border-radius: 4px;
+}
+
+.newBadge {
+  font-family: var(--ds-font-family-code);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--dsw-alias-state-business-primary);
+  background: color-mix(in srgb, var(--dsw-alias-state-business-primary) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--dsw-alias-state-business-primary) 45%, transparent);
+  border-radius: 4px;
+  padding: 1px 5px;
+  animation: expl-pulse 1.6s var(--ds-ease-in-out) infinite;
+}
+
+@keyframes expl-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--dsw-alias-state-business-primary) 35%, transparent); }
+  50% { box-shadow: 0 0 0 3px transparent; }
+}
+
+.declSummary {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 11px;
+  border-radius: 9px;
+  background: var(--dsw-alias-state-success-tertiary);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--dsw-alias-state-success-primary) 30%, transparent);
+}
+
+.empty {
+  padding: 8px 10px 6px;
+  font-size: 11.5px;
+  color: var(--dsw-alias-label-caption);
+}
+
+.emptyHero {
+  margin: 16px 4px 8px;
+  padding: 22px 16px;
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--dsw-alias-label-caption);
+  border: 1px dashed var(--dsw-alias-border-l2);
+  border-radius: 10px;
+}
+
+/* ── Declaration history (FR-2.2) ────────────────────────────────────── */
+
+.history { margin-top: 4px; border-top: 1px dashed var(--dsw-alias-border-l1); padding-top: 8px; }
+
+.historySummary {
+  cursor: pointer;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--dsw-alias-label-caption);
+  user-select: none;
+}
+
+.historySummary:hover { color: var(--dsw-alias-label-tertiary); }
+
+.historyCard {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--dsh-expl-raised);
+  opacity: 0.8;
+}
+
+.historyTag {
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  color: var(--dsw-alias-state-warn-label);
+}
+
+.historyItems {
+  margin-top: 4px;
+  font-family: var(--ds-font-family-code);
+  font-size: 11.5px;
+  color: var(--dsw-alias-label-tertiary);
+  word-break: break-all;
+}
+
+.historyOk { color: var(--dsw-alias-state-success-secondary); margin-right: 8px; }
+.historyNo { margin-right: 8px; }
+
+/* ── Evidence buckets (FR-3) ─────────────────────────────────────────── */
+
+.buckets {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+@media (min-width: 860px) {
+  .buckets { grid-template-columns: repeat(5, 1fr); }
+}
+
+.bucket {
+  min-width: 0;
+  background: var(--dsh-expl-raised);
+  border: 1px solid var(--dsw-alias-border-l1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.bucketHead {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 9px 12px;
+}
+
+.bucketNum {
+  font-family: var(--ds-font-family-code);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.bucketLabel {
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dsw-alias-label-caption);
+}
+
+.bucketOverview {
+  margin-left: auto;
+  font-family: var(--ds-font-family-code);
+  font-size: 10.5px;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.bucketList {
+  max-height: 220px;
+  overflow: auto;
+  padding: 4px 8px 8px;
+}
+
+.bucketItem {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  font-family: var(--ds-font-family-code);
+  font-size: 11.5px;
+  transition: background 0.1s var(--ds-ease-in-out);
+}
+
+.bucketItem:hover { background: var(--dsw-alias-interactive-bg-hover); }
+
+.bucketItem .glyph { width: 15px; height: 15px; font-size: 9px; }
+
+.bucketItemMain {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bucketItemMeta { flex: none; font-size: 10px; color: var(--dsw-alias-label-caption); }
+
+.bucketMore {
+  padding: 5px 12px;
+  font-family: var(--ds-font-family-code);
+  font-size: 10.5px;
+  color: var(--dsw-alias-label-caption);
+  border-top: 1px solid var(--dsw-alias-border-l1);
+}
+
+/* ── Status legend (FR-6) ────────────────────────────────────────────── */
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  padding: 9px 16px;
+  border-top: 1px solid var(--dsw-alias-border-l1);
+  font-size: 11px;
+  color: var(--dsw-alias-label-caption);
+}
+
+.legendItem { display: flex; align-items: center; gap: 6px; }
+
+.legendItem .glyph { width: 15px; height: 15px; font-size: 9px; }

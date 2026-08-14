@@ -1,0 +1,6 @@
+/* View-tab wrapper: the panel fills the view area's scrollport. */
+.view {
+  height: 100%;
+  min-height: 0;
+  overflow: auto;
+}
